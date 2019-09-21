@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 
 import android.content.Context;
 import android.content.Intent;
+import android.database.Cursor;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.graphics.ColorMatrix;
@@ -13,6 +14,7 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.provider.MediaStore;
+import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
 
@@ -62,10 +64,8 @@ public class ViewImage extends AppCompatActivity {
         try {
             String uri = MediaStore.Images.Media.insertImage(this.getContentResolver(),image_cache, fileName, null);
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
-                final Intent scanIntent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-                final Uri contentUri = Uri.parse(uri);
-                scanIntent.setData(contentUri);
-                sendBroadcast(scanIntent);
+                Uri contentUri = Uri.parse(uri);
+                sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(getRealPathFromURI(this,contentUri)))));
             } else {
                 final Intent intent = new Intent(Intent.ACTION_MEDIA_MOUNTED, Uri.parse("file://" + Environment.getExternalStorageDirectory()));
                 sendBroadcast(intent);
@@ -122,5 +122,38 @@ public class ViewImage extends AppCompatActivity {
 //        context.sendBroadcast(new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE, Uri.fromFile(new File(file.getPath()))));
 //        //list = getAllImagePath();
 //    }
+
+    public static String getRealPathFromURI(Context context, Uri contentUri) {
+        String result = "";
+        Cursor cursor = null;
+        try {
+            String[] proj = { MediaStore.Images.Media.DATA };
+            cursor = context.getContentResolver().query(contentUri, proj, null, null, null);
+            cursor.moveToFirst();
+            int column_index = cursor.getColumnIndex(proj[0]);
+            result = cursor.getString(column_index);
+            return result;
+        } finally {
+            if (cursor != null) {
+                cursor.close();
+            }
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        clearCache();
+        super.onDestroy();
+    }
+
+    public void clearCache(){
+        File cacheDir = this.getCacheDir();
+
+        File file = new File(cacheDir+"/"+fileName);
+
+        if (file.exists()) {
+            file.delete();
+        }
+    }
 
 }

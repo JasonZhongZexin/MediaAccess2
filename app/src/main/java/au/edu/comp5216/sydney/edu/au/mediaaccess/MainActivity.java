@@ -62,6 +62,20 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         //list = imageReader( Environment.getExternalStorageDirectory());
+        //list = getAllImagePath();
+//        gv = (GridView) findViewById(R.id.gridview);
+//        gv.setAdapter( new GridAdapter());
+//        gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+//            @Override
+//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
+//                startActivity(new Intent(getApplicationContext(),ViewImage.class).putExtra("img",list.get(position).toString()));
+//            }
+//        });
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
         if(!marshmallowPermission.checkPermissionForExternalStorage() ){
             marshmallowPermission.requestPermissionForExternalStorage();
         }else if(!marshmallowPermission.checkPermissionForReadfiles()){
@@ -80,15 +94,6 @@ public class MainActivity extends AppCompatActivity {
                 }
             });
         }
-        //list = getAllImagePath();
-//        gv = (GridView) findViewById(R.id.gridview);
-//        gv.setAdapter( new GridAdapter());
-//        gv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-//            @Override
-//            public void onItemClick(AdapterView<?> adapterView, View view, int position, long id) {
-//                startActivity(new Intent(getApplicationContext(),ViewImage.class).putExtra("img",list.get(position).toString()));
-//            }
-//        });
     }
 
     class GridAdapter extends BaseAdapter{
